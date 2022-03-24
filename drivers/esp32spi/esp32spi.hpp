@@ -6,9 +6,6 @@
 #include "spi_drv.hpp"
 #include "ip_address.hpp"
 
-
-#define WARN(message) {}
-
 #define WL_FW_VER_LENGTH 6
 
 #define WIFI_SPI_ACK        1
@@ -84,6 +81,12 @@ enum sv_protocol_mode {
     TLS_BEARSSL_MODE
 };
 
+enum s_sleep_state {
+    AWAKE,
+    LIGHT_SLEEP,
+    DEEP_SLEEP
+};
+
 
 #define KEY_IDX_LEN     1
 
@@ -99,6 +102,7 @@ namespace pimoroni {
     static const uint8_t INPUT = 0;
     static const uint8_t OUTPUT = 1;
     static const uint8_t INPUT_PULLUP = 2;
+    s_sleep_state sleep_state = AWAKE;
 
 
     //--------------------------------------------------
@@ -200,9 +204,11 @@ namespace pimoroni {
     uint8_t get_server_state(uint8_t sock);
     uint8_t get_client_state(uint8_t sock);
     uint16_t avail_data(uint8_t sock);
-    uint8_t avail_server(uint8_t sock);
+    uint8_t avail_server(uint8_t sock); // a weird copy of avail_data that truncates to uint8_t and returns 255 if unavailable...
+    // see: https://github.com/arduino-libraries/WiFiNINA/blob/e74d115d252bac24267e4b1a504c033f399924f2/src/utility/server_drv.cpp#L228-L288
+    // and: https://github.com/adafruit/nina-fw/blob/d73fe315cc7f9148a0918490d3b75430c8444bf7/main/CommandHandler.cpp#L437-L498
 
-    bool get_data(uint8_t sock, uint8_t *data_out, uint8_t peek);
+    bool get_data(uint8_t sock, uint8_t *data_out, uint16_t peek);
     bool get_data_buf(uint8_t sock, uint8_t *data_out, uint16_t *data_len_out);
     bool insert_data_buf(uint8_t sock, const uint8_t *data_in, uint16_t len);
     bool send_udp_data(uint8_t sock);
@@ -217,6 +223,10 @@ namespace pimoroni {
     void wifi_set_ent_username(const std::string username);
     void wifi_set_ent_password(const std::string password);
     void wifi_set_ent_enable();
+
+    void sleep_set_wake_pin(uint8_t wake_pin);
+    void sleep_light();
+    void sleep_deep(uint8_t time);
   };
 
 }
