@@ -184,7 +184,7 @@ namespace pimoroni {
       raset[0] = windowY1;
       raset[1] = windowY2;
       width = (windowX2 - windowX1) + 1;
-      height = (windowY1 - windowY2) + 1;
+      height = (windowY2 - windowY1) + 1;
 
       // Byte swap the 16bit rows/cols values
       caset[0] = __builtin_bswap16(caset[0]);
