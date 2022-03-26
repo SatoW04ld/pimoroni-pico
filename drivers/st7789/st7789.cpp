@@ -54,7 +54,7 @@ namespace pimoroni {
     PWMFRSEL  = 0xCC
   };
 
-  void ST7789::init(bool auto_init_sequence, bool round, uint32_t spi_baud) {
+  void ST7789::init(bool auto_init_sequence, bool round, uint32_t spi_baud, int windowX1, int windowX2, int windowY1, int windowY2) {
     // configure spi interface and pins
     spi_init(spi, spi_baud);
 
@@ -177,6 +177,25 @@ namespace pimoroni {
       command(reg::RASET,     4, (char *)raset);
       command(reg::MADCTL,    1, (char *)&madctl);
 
+      update();
+
+      caset[0] = windowX1;
+      caset[1] = windowX2;
+      raset[0] = windowY1;
+      raset[1] = windowY2;
+      width = (windowX2 - windowX1) + 1;
+      height = (windowY1 - windowY2) + 1;
+
+      // Byte swap the 16bit rows/cols values
+      caset[0] = __builtin_bswap16(caset[0]);
+      caset[1] = __builtin_bswap16(caset[1]);
+      raset[0] = __builtin_bswap16(raset[0]);
+      raset[1] = __builtin_bswap16(raset[1]);
+
+      command(reg::CASET,     4, (char *)caset);
+      command(reg::RASET,     4, (char *)raset);
+      command(reg::MADCTL,    1, (char *)&madctl);
+
       if(bl != PIN_UNUSED) {
         update(); // Send the new buffer to the display to clear any previous content
         sleep_ms(50); // Wait for the update to apply
@@ -204,6 +223,7 @@ namespace pimoroni {
     // dma_channel_configure(
     //   dma_channel, &config, &spi_get_hw(spi)->dr, frame_buffer, width * height, false);
   }
+
 
   spi_inst_t* ST7789::get_spi() const {
     return spi;

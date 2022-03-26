@@ -70,7 +70,7 @@ namespace pimoroni {
     // Methods
     //--------------------------------------------------
   public:
-    void init(bool auto_init_sequence = true, bool round = false, uint32_t spi_baud = SPI_BAUD);
+    void init(bool auto_init_sequence = true, bool round = false, uint32_t spi_baud = SPI_BAUD, int windowX1 = 0, int windowX2 = 239, int windowY1 = 0, int windowY2 = 239);
 
     spi_inst_t* get_spi() const;
     uint get_cs() const;
